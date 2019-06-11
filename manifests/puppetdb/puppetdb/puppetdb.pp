@@ -10,7 +10,7 @@ class puppet::puppetdb::puppetdb::puppetdb (
   include puppet::puppet::repo
   include puppet::puppetdb::puppetdb::user
   include puppet::puppet::agent::agent
-  include choria_discovery_proxy
+  # include choria_discovery_proxy # Choria not working atm?
 
   class { 'puppetdb::server':
     database_host     => $database_host,
