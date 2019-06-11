@@ -10,6 +10,6 @@
 class puppet::puppet::server::monolitic {
 
   include puppet::puppetdb::database::postgresql
-  include puppet::puppet::ca_master
+  include puppet::puppet::server::ca_master
   include puppet::puppetdb::puppetdb::puppetdb
 }
