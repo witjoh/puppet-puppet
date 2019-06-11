@@ -1,7 +1,8 @@
 class puppet::puppet::repo {
 
   if $facts['virtual'] == 'kvm' {
-    $baseurl = 'file:///vagrant/repos/puppet6/el/7/x86_64'
+    # $baseurl = 'file:///vagrant/repos/puppet6/el/7/x86_64'
+      $baseurl = 'http://yum.puppet.com/puppet6/el/7/x86_64/'
   } else {
     if $facts['puppet_master_env'] {
       $baseurl = "http://your.local.mirror/repo/puppet6_${facts['puppet_master_env']}/el/7/x86_64/"
