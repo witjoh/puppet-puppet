@@ -40,6 +40,7 @@ class puppet::puppetdb::puppetdb::puppetdb (
     Host <<| tag == "puppet_infra_postgresql${server_suffix}" |>>
   }
 
-  Class['puppetdb::server']
-  -> Class['profile::choria::discovery_proxy']
+  # Referring to some none-existing profile?
+  # Class['puppetdb::server']
+  # -> Class['profile::choria::discovery_proxy']
 }
