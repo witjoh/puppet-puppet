@@ -5,6 +5,7 @@ class puppet::puppetdb::puppetdb::puppetdb (
   $database_password = $puppet::puppetdb::params::database_password,
   $max_threads       = undef,
   $java_heap_size    = $puppet::puppetdb::params::java_heap_size,
+  $manage_host       = true,
 ) inherits puppet::puppetdb::params
 {
   include puppet::puppet::repo
@@ -27,15 +28,17 @@ class puppet::puppetdb::puppetdb::puppetdb (
     require           => Class['puppet::puppet::repo', 'puppet::puppetdb::puppetdb::user',],
   }
 
-  @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
-    ensure       => present,
-    comment      => 'Puppet DB node',
-    ip           => $facts['ipaddress'],
-    tag          => "puppet_infra${server_suffix}",
-  }
+  if ($manage_host) {
+    @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
+        ensure       => present,
+        comment      => 'Puppet DB node',
+        ip           => $facts['ipaddress'],
+        tag          => "puppet_infra${server_suffix}",
+    }
 
-  Host <<| tag == "puppet_infra${server_suffix}" |>>
-  Host <<| tag == "puppet_infra_postgresql${server_suffix}" |>>
+    Host <<| tag == "puppet_infra${server_suffix}" |>>
+    Host <<| tag == "puppet_infra_postgresql${server_suffix}" |>>
+  }
 
   Class['puppetdb::server']
   -> Class['profile::choria::discovery_proxy']

@@ -13,5 +13,7 @@ class puppet::puppet::server::monolitic {
   class { 'puppet::puppet::server::ca_master':
     manage_host => false,
   }
-  include puppet::puppetdb::puppetdb::puppetdb
+  class { 'puppet::puppetdb::puppetdb::puppetdb':
+    manage_host => false,
+  }
 }
