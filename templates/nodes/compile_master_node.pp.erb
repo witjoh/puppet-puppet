@@ -1,0 +1,6 @@
+node /^p5m\d<%= @server_suffix %>.<%= @domain %>$/ {
+
+  include puppet::puppet::server::compile_master
+  # include profile::choria::server
+
+}

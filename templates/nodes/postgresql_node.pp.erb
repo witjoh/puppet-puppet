@@ -1,0 +1,7 @@
+node 'p5pg<%= @server_suffix %>.<%= @domain %>' {
+
+  include puppet::puppetdb::database::postgresql
+  # include profile::choria::server
+
+
+}

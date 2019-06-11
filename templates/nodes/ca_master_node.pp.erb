@@ -1,0 +1,6 @@
+node 'p5ca<%= @server_suffix %>.<%= @domain %>' {
+
+  include puppet::puppet::server::ca_master
+  # include profile::choria::broker
+
+}
