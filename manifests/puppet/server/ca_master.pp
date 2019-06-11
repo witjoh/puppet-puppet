@@ -10,6 +10,7 @@ class puppet::puppet::server::ca_master (
   String           $environment         = $puppet::puppet::params::environment,
   String           $runinterval         = $puppet::puppet::params::runinterval,
   Integer          $jruby_instances     = $puppet::puppet::params::jruby_instances,
+  Boolean          $manage_host         = true,
 ) inherits puppet::puppet::params
 {
   include puppet::puppet::user
@@ -61,12 +62,14 @@ class puppet::puppet::server::ca_master (
 
   include puppet::puppet::server::r10k
 
-  @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
-    ensure  => present,
-    comment => 'Puppet CA Master',
-    ip      => $facts['ipaddress'],
-    tag     => "puppet_infra${server_suffix}",
-  }
+  if ($manage_host) {
+    @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
+        ensure  => present,
+        comment => 'Puppet CA Master',
+        ip      => $facts['ipaddress'],
+        tag     => "puppet_infra${server_suffix}",
+    }
 
-  Host <<| tag == "puppet_infra${server_suffix}" |>>
+    Host <<| tag == "puppet_infra${server_suffix}" |>>
+  }
 }
