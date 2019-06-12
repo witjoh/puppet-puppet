@@ -109,25 +109,50 @@ Node definitions only needs to be installed on the ca_master and all compile nod
 ### step2 - create ca master, pgsql, puppetdb all in onde node
 
 * set the hostname simular to the choosen dns name
-  * hostname p6ca.${domain}
+  * hostname p6ca-<env>.${domain}
 * start local installation with puppet apply
 
 ````
 puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::monolitic'
 ````
 
-This will fail because puppetdb is still missing:
+This will fail because puppetdb is still missing / A bug in the postgresql module:
 
-* run puppet agent to generate the ca certificate
+* Fix selinux context
+
+We should file a bugreport (and patch) for the postgresql module used.
+the concat { } statements for config files in ::config.pp should have a $seltype of postgresql_db_t
 
 ````
-puppet agent  --onetime --no-daemonize
+chcon --reference=/var/lib/pgsql /var/opt/rh/rh-postgresql96/lib/puppetdb/*.conf
+systemctl start rh-postgresql96-postgresql
 ````
 
 * start the puppetserver manually
 
 ````
 systemctl start puppetserver
+````
+
+* run puppet agent to generate the ca certificate (and make sure ssl certificates are in the correct place for puppetdb)
+
+````
+puppet agent  -t --onetime --no-daemonize --noop
+puppetdb ssl-setup
+````
+
+* Run puppet apply again
+
+````
+systemctl stop puppetdb
+puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::monolitic'
+````
+
+* Run the puppet apply command a few more times and you should be good to go
+
+````
+puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::monolitic'
+puppet agent -t # Can now also be used
 ````
 
 # Bootstrapping and Maintaining Puppet 5 Infrastructure

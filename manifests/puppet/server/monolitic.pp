@@ -10,14 +10,14 @@
 class puppet::puppet::server::monolitic {
 
   class { 'puppet::puppetdb::database::postgresql':
-    'monolitic' => true,
+    monolitic => true,
   }
 
   class { 'puppet::puppet::server::ca_master':
-    'monolitic' => true,
+    monolitic => true,
   }
 
   class { 'puppet::puppetdb::puppetdb::puppetdb':
-    'monolitic' => true,
+    monolitic => true,
   }
 }
