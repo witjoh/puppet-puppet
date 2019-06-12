@@ -5,7 +5,7 @@ class puppet::puppetdb::puppetdb::puppetdb (
   $database_password = $puppet::puppetdb::params::database_password,
   $max_threads       = undef,
   $java_heap_size    = $puppet::puppetdb::params::java_heap_size,
-  $manage_host       = true,
+  $monolitic         = false,
 ) inherits puppet::puppetdb::params
 {
   include puppet::puppet::repo
@@ -28,7 +28,7 @@ class puppet::puppetdb::puppetdb::puppetdb (
     require           => Class['puppet::puppet::repo', 'puppet::puppetdb::puppetdb::user',],
   }
 
-  if ($manage_host) {
+  if $monolitic == false {
     @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
         ensure       => present,
         comment      => 'Puppet DB node',

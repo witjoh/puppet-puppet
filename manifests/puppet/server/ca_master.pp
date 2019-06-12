@@ -10,8 +10,7 @@ class puppet::puppet::server::ca_master (
   String           $environment         = $puppet::puppet::params::environment,
   String           $runinterval         = $puppet::puppet::params::runinterval,
   Integer          $jruby_instances     = $puppet::puppet::params::jruby_instances,
-  Boolean          $manage_host         = true,
-  Boolean          $monolitic_alt_names = false,
+  Boolean          $monolitic           = false,
 ) inherits puppet::puppet::params
 {
   include puppet::puppet::user
@@ -27,7 +26,7 @@ class puppet::puppet::server::ca_master (
     }
   }
 
-  if $monolitic_alt_names {
+  if $monolitic {
     $dns_alt_names = "${ca_server},${puppetdb_server},${main_server},p6nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
   } else {
     $dns_alt_names = "${ca_server},p6nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
@@ -67,14 +66,12 @@ class puppet::puppet::server::ca_master (
 
   include puppet::puppet::server::r10k
 
-  if ($manage_host) {
-    @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
-        ensure  => present,
-        comment => 'Puppet CA Master',
-        ip      => $facts['ipaddress'],
-        tag     => "puppet_infra${server_suffix}",
-    }
-
-    Host <<| tag == "puppet_infra${server_suffix}" |>>
+  @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
+    ensure  => present,
+    comment => 'Puppet CA Master',
+    ip      => $facts['ipaddress'],
+    tag     => "puppet_infra${server_suffix}",
   }
+
+  Host <<| tag == "puppet_infra${server_suffix}" |>>
 }
