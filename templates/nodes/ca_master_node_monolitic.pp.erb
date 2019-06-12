@@ -1,6 +1,6 @@
 node 'p6ca<%= @server_suffix %>.<%= @domain %>' {
 
-  include puppet::puppet::server::ca_master
+  include puppet::puppet::server::monolitic
   # include profile::choria::broker
 
 }

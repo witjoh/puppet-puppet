@@ -5,12 +5,16 @@ class puppet::puppetdb::database::postgresql (
   $database_name     = $puppet::puppetdb::params::database_name,
   $database_user     = $puppet::puppetdb::params::database_user,
   $database_password = $puppet::puppetdb::params::database_password,
+  $monolitic         = false,
 ) inherits puppet::puppetdb::params
 {
 
   include puppet::puppetdb::database::user
   include puppet::puppetdb::database::repo
-  include puppet::puppet::agent::agent
+
+  if $monolitic == false {
+    include puppet::puppet::agent::agent
+  }
 
   # SCL does not set the library path, so we get the following error :
   # error while loading shared libraries: libpq.so.rh-postgresql96-5:
@@ -79,14 +83,16 @@ class puppet::puppetdb::database::postgresql (
     require  => Postgresql::Server::Db[$database_name],
   }
 
-  @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
-    ensure       => present,
-    comment      => 'Puppet postgresql',
-    ip           => $facts['ipaddress'],
-    tag          => "puppet_infra_postgresql${server_suffix}",
-  }
+  if $monolitic == false {
+    @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
+        ensure       => present,
+        comment      => 'Puppet postgresql',
+        ip           => $facts['ipaddress'],
+        tag          => "puppet_infra_postgresql${server_suffix}",
+    }
 
-  Host <<| tag == "puppet_infra${server_suffix}" |>>
-  Host <<| tag == "puppet_infra_postgresql${server_suffix}" |>>
+    Host <<| tag == "puppet_infra${server_suffix}" |>>
+    Host <<| tag == "puppet_infra_postgresql${server_suffix}" |>>
+  }
 
 }

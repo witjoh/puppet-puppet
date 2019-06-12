@@ -6,7 +6,7 @@ class puppet::puppetdb::params {
   $database_name = 'puppetdb'
   $database_user = 'pgsql_puppetdb'
   $database_password = 'fjskjfkdl'
-  $database_host = "p5pg${server_suffix}.${facts['domain']}"
+  $database_host = "p6pg${server_suffix}.${facts['domain']}"
   $var_lib_puppetdb_lv_size = '10g'
   $java_heap_size = '2g'
 }

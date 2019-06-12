@@ -64,7 +64,7 @@ class puppet::puppet::server::compile_master (
 
   @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
     ensure       => present,
-    host_aliases => "p5m${server_suffix}.${facts['domain']}",
+    host_aliases => "p6m${server_suffix}.${facts['domain']}",
     comment      => 'Puppet Compile Master',
     ip           => $facts['ipaddress'],
     tag          => "puppet_infra${server_suffix}",
