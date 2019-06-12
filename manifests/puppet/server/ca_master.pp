@@ -11,6 +11,7 @@ class puppet::puppet::server::ca_master (
   String           $runinterval         = $puppet::puppet::params::runinterval,
   Integer          $jruby_instances     = $puppet::puppet::params::jruby_instances,
   Boolean          $manage_host         = true,
+  Boolean          $monolitic_alt_names = false,
 ) inherits puppet::puppet::params
 {
   include puppet::puppet::user
@@ -26,7 +27,11 @@ class puppet::puppet::server::ca_master (
     }
   }
 
-  $dns_alt_names = "${ca_server}, p5nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
+  if $monolitic_alt_names {
+    $dns_alt_names = "${ca_server}, ${puppetdb_server}, ${main_server}, p5nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
+  } else {
+    $dns_alt_names = "${ca_server}, p5nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
+  }
 
   class { 'puppetserver':
     certname        => $ca_server,

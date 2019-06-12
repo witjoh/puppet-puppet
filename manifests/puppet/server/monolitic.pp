@@ -11,7 +11,8 @@ class puppet::puppet::server::monolitic {
 
   include puppet::puppetdb::database::postgresql
   class { 'puppet::puppet::server::ca_master':
-    manage_host => false,
+    manage_host         => false,
+    monolitic_alt_names => true,
   }
   class { 'puppet::puppetdb::puppetdb::puppetdb':
     manage_host => false,

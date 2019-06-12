@@ -21,7 +21,6 @@ class puppet::puppetdb::puppetdb::puppetdb (
     database_password => $database_password,
     manage_firewall   => false,
     max_threads       => $max_threads,
-    disable_ssl       => false,
     java_args         => {
       '-Xmx' => $java_heap_size,
       '-Xms' => $java_heap_size,
