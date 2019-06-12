@@ -28,9 +28,9 @@ class puppet::puppet::server::ca_master (
   }
 
   if $monolitic_alt_names {
-    $dns_alt_names = "${ca_server}, ${puppetdb_server}, ${main_server}, p6nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
+    $dns_alt_names = "${ca_server},${puppetdb_server},${main_server},p6nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
   } else {
-    $dns_alt_names = "${ca_server}, p6nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
+    $dns_alt_names = "${ca_server},p6nats${server_suffix}.${facts['domain']},${extra_dns_alt_names}"
   }
 
   class { 'puppetserver':
