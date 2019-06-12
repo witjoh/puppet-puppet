@@ -1,3 +1,135 @@
+# Bootstrapping and Maintaining Puppet 6 Infrastructure (Monolitic)
+
+## Preparation
+
+Following third party are needed:
+
+Check the Puppetfile in the following repo for up to date list : git@git.local.domain:/control_repo_puppet.git
+
+### for the puppet servers infrastructure
+
+````
+├── camptocamp-augeas (v1.7.0)
+├── crayfishx-ldconfig (v0.1.0)
+├── herculesteam-augeasproviders_core (v2.1.5)
+├── instruct-puppetserver (v2.0.0)
+├── puppetlabs-concat (v5.0.0)
+├── puppetlabs-hocon (v1.0.1)
+├── puppetlabs-inifile (v2.4.0)
+├── puppetlabs-postgresql (v5.10.0)
+├── puppetlabs-puppet_agent (v0.1.0)
+├── puppetlabs-puppetdb (v7.0.1)
+├── puppetlabs-puppetserver_gem (v1.0.0)
+├── puppetlabs-stdlib (v4.25.1)
+└── puppet (???)
+````
+
+### For the Bolt integration (TO BE DONE)
+
+````
+├── choria-choria (v0.11.0)
+├── choria-mcollective (v0.8.0)
+├── choria-mcollective_agent_filemgr (v2.0.1)
+├── choria-mcollective_agent_package (v5.0.1)
+├── choria-mcollective_agent_puppet (v2.2.0)
+├── choria-mcollective_agent_service (v4.0.1)
+├── choria-mcollective_choria (v0.11.0)
+└── choria-mcollective_util_actionpolicy (v3.0.0)
+````
+
+Those modules are mirrored on the gitlab and should be retreived
+from this location.
+
+All dependencies are also provided in the Puppetfile in this repository.
+
+## Provisioning puppetless the system and prepare for bootstrap
+
+Create a new host.
+
+### step 1 : create 1 monolitic node
+
+After the node is created, do the following steps :
+
+````
+yum update
+````
+
+* create /etc/yum.repos.d/puppet6.repo with following content :
+
+````
+[puppet6]
+name=puppet6 packages
+baseurl=http://yum.puppet.com/puppet6/el/7/x86_64/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppet6-release
+enabled=1
+gpgcheck=0
+````
+
+* install the puppet6 agent
+
+````
+yum clean all
+yum install puppet-agent
+````
+
+* create a custom fact to define the puppet master environment
+
+````
+cat /opt/puppetlabs/facter/facts.d/bootstrap.yaml
+---
+puppet_master_env: < PUPPET_MASTER_ENV >
+
+````
+
+* create the directory '/etc/puppetlabs/code/environments/production/modules'
+* in above directory, checkout all modules defined in the Puppetfile
+* Tested with latest version for all modules
+
+````
+cd /etc/puppetlabs/code/environment/production/modules
+git clone <:git value> <mod value>
+git chekout <:ref value>
+
+git clone git@git.local.net:op/puppet/modules/mirror/puppetlabs-stdlib.git stdlib
+....
+````
+
+When all modules are located there, one can create the following node definitions in the
+manifest directory : This can be generated during bootstrap :
+
+````
+puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::mononodes'
+````
+
+These nodefiles uses the puppet infra certname (see above), making it mandatory to get the puppet
+certificate with these aliases as certname.
+
+Node definitions only needs to be installed on the ca_master and all compile nodes.
+
+### step2 - create ca master, pgsql, puppetdb all in onde node
+
+* set the hostname simular to the choosen dns name
+  * hostname p6ca.${domain}
+* start local installation with puppet apply
+
+````
+puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::monolitic'
+````
+
+This will fail because puppetdb is still missing:
+
+* run puppet agent to generate the ca certificate
+
+````
+puppet agent  --onetime --no-daemonize
+````
+
+* start the puppetserver manually
+
+````
+systemctl start puppetserver
+````
+
 # Bootstrapping and Maintaining Puppet 5 Infrastructure
 
 ## the initial setup
