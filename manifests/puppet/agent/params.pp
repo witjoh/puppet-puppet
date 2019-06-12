@@ -1,10 +1,10 @@
 class puppet::params (
   $pme = $::puppet_master_env,
   $puppet_conf_file = '/etc/puppetlabs/puppet/puppet.conf',
-  $puppet_ca_server = "p5ca-${pme}.${facts['domain']}",
-  $puppet_server = "p5-${pme}.${facts['domain']}",
+  $puppet_ca_server = "p6ca-${pme}.${facts['domain']}",
+  $puppet_server = "p6-${pme}.${facts['domain']}",
   $puppet_report_server = $puppet_server,
-  $puppet_db_server = "p5db-${pme}.${facs['domain']}",
+  $puppet_db_server = "p6db-${pme}.${facs['domain']}",
   $puppet_agent_splay = true,
   $puppet_agent_runinterval = '30m',
   $puppet_agent_environment = 'production',
