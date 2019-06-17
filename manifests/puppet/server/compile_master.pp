@@ -10,10 +10,14 @@ class puppet::puppet::server::compile_master (
   String       $environment      = $puppet::puppet::params::environment,
   String       $runinterval      = $puppet::puppet::params::runinterval,
   Integer      $jruby_instances  = $puppet::puppet::params::jruby_instances,
+  Boolean      $manage_repo      = true,
 ) inherits puppet::puppet::params
 {
-  include puppet::puppet::user
-  include puppet::puppet::repo
+  if $manage_repo {
+    include puppet::puppet::repo
+    Class['puppet::puppet::repo'] -> Class['puppetserver']
+  } 
+
   include puppet::puppet::server::authorization
 
   if $trusted['authenticated'] == 'remote' {
@@ -49,7 +53,6 @@ class puppet::puppet::server::compile_master (
     environment     => $environment,
     runinterval     => $runinterval,
     jruby_instances => $jruby_instances,
-    require         => Class['puppet::puppet::user', 'puppet::puppet::repo'],
   }
 
   class { 'puppetdb::master::config':

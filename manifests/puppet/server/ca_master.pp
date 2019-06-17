@@ -11,10 +11,14 @@ class puppet::puppet::server::ca_master (
   String           $runinterval         = $puppet::puppet::params::runinterval,
   Integer          $jruby_instances     = $puppet::puppet::params::jruby_instances,
   Boolean          $monolitic           = false,
+  Boolean          $manage_repo         = true,
 ) inherits puppet::puppet::params
 {
-  include puppet::puppet::user
-  include puppet::puppet::repo
+
+  if $manage_repo {
+    include puppet::puppet::repo
+    Class['puppet::puppet::repo'] -> Class['puppetserver']
+  }
 
   if $trusted['authenticated'] == 'remote' {
     class { puppet::puppet::agent::agent:
@@ -43,7 +47,6 @@ class puppet::puppet::server::ca_master (
     environment     => $environment,
     runinterval     => $runinterval,
     jruby_instances => $jruby_instances,
-    require         => Class['puppet::puppet::user', 'puppet::puppet::repo'],
   }
 
   class { 'puppetdb::master::config':
