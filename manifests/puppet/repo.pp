@@ -1,21 +1,35 @@
-class puppet::puppet::repo {
+class puppet::puppet::repo (
+  Integer $puppet_version = 6,
+) {
 
-  if $facts['virtual'] == 'kvm' {
-    # $baseurl = 'file:///vagrant/repos/puppet6/el/7/x86_64'
-      $baseurl = 'http://yum.puppet.com/puppet6/el/7/x86_64/'
-  } else {
-    if $facts['puppet_master_env'] {
-      $baseurl = "http://your.local.mirror/repo/puppet6_${facts['puppet_master_env']}/el/7/x86_64/"
-    } else {
-      $baseurl = 'http://yum.puppet.com/puppet6/el/7/x86_64/'
+  if ! $puppet_version in [ 5, 6 ] {
+    fail("Only puppet 5 or puppet 6 version is supported, got puppet${puppet_version}")
+  }
+  
+  case $facts['os']['name'] {
+    'RedHat','CentOS': {
+      $os_flavor = 'el'
+    }
+    'Fedora': {
+      $os_flavor = 'fedora'
+    }
+    default: {
+      fail("Only RedHat family based distros are supported: got ${os['name']}")
     }
   }
+ 
+  file { "/etc/pki/rpm-gpg/RPM-GPG-KEY-puppet${puppet_version}-release":
+    ensure => present,
+    source => 'https://yum.puppetlabs.com/RPM-GPG-KEY-puppet',
+  }
 
-  yumrepo { 'puppet6':
+  yumrepo { "puppet${puppet_version}":
     ensure   => present,
-    baseurl  => $baseurl,
-    descr    => 'Puppet6 packages',
+    baseurl  => "https://yum.puppetlabs.com/puppet${puppet_version}/${os_flavor}/${facts['os']['release']['major']}/${facts['os']['architecture']}",
+    descr    => "Puppet 6 Repository ${os_flavor} ${facts['os']['release']['major']} - ${facts['os']['architecture']}",
     enabled  => '1',
-    gpgcheck => '0',
+    gpgcheck => '1',
+    gpgkey   => 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppet6-release', 
+    require  => File["/etc/pki/rpm-gpg/RPM-GPG-KEY-puppet${puppet_version}-release"],
   }
 }
