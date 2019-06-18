@@ -10,7 +10,7 @@ class puppet::puppet::server::mononodes {
     $server_suffix = ""
   }
 
-  file { "${settings::manifest}/p6ca${server_suffix}.${facts['domain']}.pp":
+  file { "${settings::manifest}/master${server_suffix}.${facts['domain']}.pp":
     ensure  => file,
     content => template('puppet/nodes/ca_master_node_monolitic.pp.erb'),
   }

@@ -9,15 +9,27 @@
 #
 class puppet::puppet::server::monolitic {
 
+  include puppet::settings
+  $server_suffix = $puppet::settings::server_suffix
+
   class { 'puppet::puppetdb::database::postgresql':
     monolitic => true,
   }
 
   class { 'puppet::puppet::server::ca_master':
-    monolitic => true,
+    ca_server       => "master${server_suffix}.${facts['domain']}",
+    puppetdb_server => "master${server_suffix}.${facts['domain']}",
+    main_server     => "master${server_suffix}.${facts['domain']}",
+    monolitic       => true,
+    before          => Class['puppetdb'],
   }
 
-  class { 'puppet::puppetdb::puppetdb::puppetdb':
-    monolitic => true,
+  include puppetdb
+
+  host { $facts['fqdn']:
+    ensure       => 'present',
+    host_aliases => [$facts['hostname'], "master${server_suffix}.${facts['domain']}", "master${server_suffix}"],
+    ip           => $ipaddress4,
   }
+
 }

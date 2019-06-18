@@ -1,19 +1,19 @@
 class puppet::puppetdb::database::repo {
 
-  if ( $facts['operatingsystem']=="CentOS" ) {
+  # default, we use the postgresql yum repos
+  if $facts['operatingsystem'] in ['CentOS', 'RedHat']  {
 
-    package { 'centos-release-scl':
-        ensure => present,
+    package { 'epel-release':
+      ensure => present,
+    }
+
+    package { 'pgdg-redhat-repo':
+      ensure   => present,
+      source   => "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${facts['os']['release']['major']}-${facts['os']['architecture']}/pgdg-redhat-repo-latest.noarch.rpm",
+      provider => 'rpm',
     }
 
   } else {
-    yumrepo { 'rhel-server-rhscl-7-rpms':
-      ensure   => present,
-      baseurl  => 'http://your.local.mirror/repo/7.5.2018Q3/rhel-server-rhscl-7-rpms',
-      descr    => 'rhel-server-rhscl-7-rpms',
-      enabled  => '1',
-      gpgcheck => '1',
-      gpgkey   => 'file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release',
-    }
+    fail("Only RedHat and CentOS are supported, got: ${facts['os']['name']} !")
   }
 }

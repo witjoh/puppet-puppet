@@ -183,6 +183,56 @@ Per environment:
 * postgresql server : p5pg-<environment> where environment in [ 'sbx', 'tst', 'prd', 'dev' ]
 * compilemaster : p5m[1-9]-<environment> where environment in [ 'sbx', 'tst', 'prd', 'dev' ]
 
+## Procedure too bootstrap a monolitic setup
+
+* boot up a node
+* yum update -y 
+* yum install http://yum.puppet.com/puppet6-release-el-7.noarch.rpm
+* yum install puppet-agent
+* reboot the system
+* Transfer all needed modules to the target node:
+
+````
+/etc/puppetlabs/code/environments/production/modules
+├── camptocamp-augeas (v1.7.0)
+├── crayfishx-ldconfig (v0.1.0)
+├── croddy-make (v999.999.999)
+├── gentoo-portage (v2.3.0)
+├── herculesteam-augeasproviders_core (v2.4.0)
+├── instruct-puppetserver (v2.0.0)
+├── puppet (???)
+├── puppet-r10k (v4.0.2)
+├── puppetlabs-apt (v7.0.1)
+├── puppetlabs-concat (v6.0.0)
+├── puppetlabs-firewall (v2.0.0)
+├── puppetlabs-gcc (v0.2.0)
+├── puppetlabs-git (v0.5.0)
+├── puppetlabs-hocon (v1.0.1)
+├── puppetlabs-inifile (v3.0.0)
+├── puppetlabs-pe_gem (v0.2.0)
+├── puppetlabs-postgresql (v6.1.0)
+├── puppetlabs-puppetdb (v7.3.0)
+├── puppetlabs-puppetserver_gem (v1.1.0)
+├── puppetlabs-ruby (v1.0.1)
+├── puppetlabs-stdlib (v5.2.0)
+├── puppetlabs-translate (v1.2.0)
+└── puppetlabs-vcsrepo (v3.0.0)
+````
+
+* optional: edit /opt/puppetlabs/facter/facts.d/bootstrap.yaml
+````    
+---
+puppet_master_env: sandbox
+````
+* puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::mononodes'
+* puppet apply --modulepath /etc/puppetlabs/code/environments/production/modules -e 'include puppet::puppet::server::monolitic'
+
+One could run last command multiple time.
+
+Test for succesfull isntallation : run **puppet agent -t**
+
+This should succeed without error
+
 ## Preparation
 
 Following third party are needed:

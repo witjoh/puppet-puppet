@@ -49,18 +49,29 @@ class puppet::puppet::server::ca_master (
     jruby_instances => $jruby_instances,
   }
 
-  class { 'puppetdb::master::config':
-    puppetdb_server => $puppetdb_server,
-  }
-
-  if find_file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem') {
-    @@file{ '/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem':
-      ensure  => file,
-      owner   => 'puppet',
-      group   => 'puppet',
-      mode    => '0644',
-      content => file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem'),
+  if ! $monolitic {
+    class { 'puppetdb::master::config':
+      puppetdb_server => $puppetdb_server,
     }
+
+    if find_file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem') {
+      @@file{ '/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem':
+        ensure  => file,
+        owner   => 'puppet',
+        group   => 'puppet',
+        mode    => '0644',
+        content => file('/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem'),
+      }
+    }
+
+    @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
+      ensure  => present,
+      comment => 'Puppet CA Master',
+      ip      => $facts['ipaddress'],
+      tag     => "puppet_infra${server_suffix}",
+    }
+
+    Host <<| tag == "puppet_infra${server_suffix}" |>>
   }
 
   class { 'puppet::puppet::server::hiera':
@@ -68,13 +79,4 @@ class puppet::puppet::server::ca_master (
   }
 
   include puppet::puppet::server::r10k
-
-  @@host { "${facts['hostname']}${server_suffix}.${facts['domain']}":
-    ensure  => present,
-    comment => 'Puppet CA Master',
-    ip      => $facts['ipaddress'],
-    tag     => "puppet_infra${server_suffix}",
-  }
-
-  Host <<| tag == "puppet_infra${server_suffix}" |>>
 }
