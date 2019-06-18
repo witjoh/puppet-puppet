@@ -1,23 +1,22 @@
----
-# Hiera 5 Global configuration file
-
 version: 5
-
 defaults:
-  lookup_key: eyaml_lookup_key
-  datadir: <%= @datadir %>
-
+  # The default value for "datadir" is "data" under the same directory as the hiera.yaml
+  # file (this file)
+  # When specifying a datadir, make sure the directory exists.
+  # See https://puppet.com/docs/puppet/latest/environments_about.html for further details on environments.
+  # datadir: data
+  # data_hash: yaml_data
 hierarchy:
-  - name: <hiera name> 
+  - name: "Per-node data (yaml version)"
+    path: "nodes/%{::trusted.certname}.yaml"
+<% if @enable_eyaml -%>
+  - name: "Secret Data - Encrypted"
     options:
       pkcs7_private_key: <%= scope['settings::confdir'] %>/eyaml/keys/<%= @private_key %>
       pkcs7_public_key:  <%= scope['settings::confdir'] %>/eyaml/keys/<%= @public_key %>
     paths:
-      - "lsf/%{clientcert}.yaml"
-      - "nodes/%{clientcert}.yaml"
-      - "roles/%{environment}/%{role}.yaml"
-      - "roles/common/%{role}.yaml"
-      - "%{environment}.yaml"
-      - puppet/%{puppet_master_env}.yaml
-      - puppet/common.yaml
-      - common.yaml
+      - "secrets/common.eyaml"
+<% end -%>
+  - name: "Other YAML hierarchy levels"
+    paths:
+      - "common.yaml"
