@@ -29,7 +29,7 @@ class puppet::puppet::server::monolitic {
   host { $facts['fqdn']:
     ensure       => 'present',
     host_aliases => [$facts['hostname'], "master${server_suffix}.${facts['domain']}", "master${server_suffix}"],
-    ip           => $ipaddress4,
+    ip           => $facts['networking']['ip'],
   }
 
 }
