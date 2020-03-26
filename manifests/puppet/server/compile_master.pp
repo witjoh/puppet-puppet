@@ -10,13 +10,13 @@ class puppet::puppet::server::compile_master (
   String       $environment      = $puppet::puppet::params::environment,
   String       $runinterval      = $puppet::puppet::params::runinterval,
   Integer      $jruby_instances  = $puppet::puppet::params::jruby_instances,
-  Boolean      $manage_repo      = true,
+  Boolean      $manage_repo      = false,
 ) inherits puppet::puppet::params
 {
   if $manage_repo {
     include puppet::puppet::repo
     Class['puppet::puppet::repo'] -> Class['puppetserver']
-  } 
+  }
 
   include puppet::puppet::server::authorization
 

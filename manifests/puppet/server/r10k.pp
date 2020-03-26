@@ -1,13 +1,19 @@
 # this class installs and configures r10k from packages
 #
-class puppet::puppet::server::r10k {
+class puppet::puppet::server::r10k (
+  String $git_server,
+  String $git_ssh_key,
+  String $git_server_key,
+  String $git_server_key_type,
+  String $control_repo,
+) {
 
   file { '/etc/puppetlabs/r10k/id_deploy_gitlab_rsa':
-    ensure => file,
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    source => 'puppet:///modules/puppet/id_deploy_gitlab_rsa',
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    content => $git_ssh_key,
   }
 
   file { '/root/.ssh':
@@ -21,7 +27,7 @@ class puppet::puppet::server::r10k {
     owner   => 'root',
     group   => 'root',
     mode    => '0600',
-    content => "Host git.${facts['domain']}\n  IdentityFile   /etc/puppetlabs/r10k/id_deploy_gitlab_rsa\n  IdentitiesOnly  yes\n",
+    content => "Host ${git_server}\n  IdentityFile   /etc/puppetlabs/r10k/id_deploy_gitlab_rsa\n  IdentitiesOnly  yes\n",
   }
 
   file { '/root/.ssh/known_hosts':
@@ -34,12 +40,12 @@ class puppet::puppet::server::r10k {
   file_line { 'gitlab_known_hosts':
     ensure => present,
     path   => '/root/.ssh/known_hosts',
-    match  => '^git.local.net,',
-    line   => 'git.local.net,1.2.3.4 ecdsa-sha2-nistp256 YOUR KEY',
+    match  => "^${git_server}",
+    line   => "${git_server} ${git_server_key_type} ${git_server_key}",
   }
 
   class { 'r10k':
-    remote       => 'git@git.local.net:/control_repo_puppet5.git',
+    remote       => "git@${git_server}:${control_repo}.git",
     mcollective  => false,
   }
 }

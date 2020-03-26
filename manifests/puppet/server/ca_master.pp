@@ -11,7 +11,7 @@ class puppet::puppet::server::ca_master (
   String           $runinterval         = $puppet::puppet::params::runinterval,
   Integer          $jruby_instances     = $puppet::puppet::params::jruby_instances,
   Boolean          $monolitic           = false,
-  Boolean          $manage_repo         = true,
+  Boolean          $manage_repo         = false,
 ) inherits puppet::puppet::params
 {
 
