@@ -48,4 +48,8 @@ class puppet::puppet::server::r10k (
     remote       => "git@${git_server}:${control_repo}.git",
     mcollective  => false,
   }
+
+  package { 'git':
+    ensure => present,
+  }
 }
